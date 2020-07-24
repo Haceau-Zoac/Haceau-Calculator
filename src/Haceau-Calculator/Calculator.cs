@@ -68,6 +68,7 @@ namespace Haceau.Application.Calculator
             }
             while (stack.ToArray().Length != 0)
                 postfix.Add(Tools.Pop(ref stack).ToString());
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -80,7 +81,19 @@ namespace Haceau.Application.Calculator
             for (int index = 0; index < postfix.ToArray().Length; ++index)
             {
                 if (Tools.IsNumber(postfix[index][0]))
+                {
                     stack.Add(decimal.Parse(postfix[index]));
+                }
+                else if (stack.ToArray().Length - 1 < 1)
+                {
+                    decimal num = Tools.Pop(ref stack);
+                    if (postfix[index] == "+")
+                        stack.Add(num);
+                    else if (postfix[index] == "-")
+                        stack.Add(-num);
+                    else
+                        throw new Exception("未知的运算符。");
+                }
                 else
                 {
                     decimal num2 = Tools.Pop(ref stack);
