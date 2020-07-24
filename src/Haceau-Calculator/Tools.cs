@@ -61,12 +61,12 @@ namespace Haceau.Application.Calculator
             ch == '+' || ch == '-';
 
         /// <summary>
-        /// ch是乘或除
+        /// ch是乘或除或取余
         /// </summary>
         /// <param name="ch">字符</param>
         /// <returns>是与否</returns>
         public static bool IsUpOperator(char ch) =>
-            ch == '*' || ch == '/';
+            ch == '*' || ch == '/' || ch == '%';
 
         /// <summary>
         /// ch是运算符
@@ -77,12 +77,12 @@ namespace Haceau.Application.Calculator
             IsLowOperator(ch) || IsUpOperator(ch);
 
         /// <summary>
-        /// ch是数字
+        /// str是数字
         /// </summary>
-        /// <param name="ch">字符</param>
+        /// <param name="str">字符串</param>
         /// <returns>是与否</returns>
-        public static bool IsNumber(char ch) =>
-            ch >= '0' && ch <= '9';
+        public static bool IsNumber(string str) =>
+            (str[0] >= '0' && str[0] <= '9') || (str.Length - 1 > 0 && (str[0] == '+' || str[0] == '-') && str[1] >= '0' && str[1] <= '9');
 
         /// <summary>
         /// 截取str中最开始的数字，遇到非数字字符结束
@@ -94,7 +94,7 @@ namespace Haceau.Application.Calculator
             string result = "";
             bool isDouble = false;
             index = -1;
-            while (str.Length > 0 && (IsNumber(str[0]) || (str[0] == '.' && !isDouble)))
+            while (str.Length > 0 && (IsNumber(str[0].ToString()) || (str[0] == '.' && !isDouble)))
             {
                 if (str[0] == '.')
                     isDouble = true;

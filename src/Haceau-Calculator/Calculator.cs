@@ -23,6 +23,7 @@ namespace Haceau.Application.Calculator
         /// <returns>计算结果</returns>
         public decimal Calculation()
         {
+            IsExpression();
             GetPostfixExpression();
 
             return CalculationPostfixExpression();
@@ -34,12 +35,20 @@ namespace Haceau.Application.Calculator
         private void GetPostfixExpression()
         {
             List<char> stack = new List<char>();
+            List<bool> isOperNum = new List<bool>();
+            List<char> oper = new List<char>();
             for (int index = 0; index < expression.Length; ++index)
             {
                 if (expression[index] == '(')
                     stack.Add('(');
                 else if (expression[index] == ')')
                 {
+                    while (isOperNum.ToArray().Length != 0)
+                    {
+                        postfix.Add(Tools.Pop(ref oper).ToString());
+                        Tools.Pop(ref isOperNum);
+                    }
+
                     while (stack.ToArray().Length > 0 && Tools.Top(stack) != '(')
                         postfix.Add(Tools.Pop(ref stack).ToString());
 
@@ -47,9 +56,17 @@ namespace Haceau.Application.Calculator
                 }
                 else if (Tools.IsLowOperator(expression[index]))
                 {
-                    while (stack.ToArray().Length > 0 && Tools.IsOperator(Tools.Top(stack)))
-                        postfix.Add(Tools.Pop(ref stack).ToString());
-                    stack.Add(expression[index]);
+                    if (postfix.ToArray().Length == 0 || expression[index - 1] == '(')
+                    {
+                        isOperNum.Add(true);
+                        oper.Add(expression[index]);
+                    }
+                    else
+                    {
+                        while (stack.ToArray().Length > 0 && Tools.IsOperator(Tools.Top(stack)))
+                            postfix.Add(Tools.Pop(ref stack).ToString());
+                        stack.Add(expression[index]);
+                    }
                 }
                 else if (Tools.IsUpOperator(expression[index]))
                 {
@@ -57,10 +74,20 @@ namespace Haceau.Application.Calculator
                         postfix.Add(Tools.Pop(ref stack).ToString());
                     stack.Add(expression[index]);
                 }
-                else if (Tools.IsNumber(expression[index]))
+                else if (Tools.IsNumber(expression[index].ToString()))
                 {
-                    postfix.Add(Tools.GetDouble(expression.Substring(index), out int addIndex));
-                    
+                    int addIndex;
+                    if (isOperNum.ToArray().Length - 1 >= 0)
+                    {
+                        Tools.Pop(ref isOperNum);
+                        if (Tools.Pop(ref oper) == '+')
+                            postfix.Add('+' + Tools.GetDouble(expression.Substring(index), out addIndex));
+                        else
+                            postfix.Add('-' + Tools.GetDouble(expression.Substring(index), out addIndex));
+                    }
+                    else
+                        postfix.Add(Tools.GetDouble(expression.Substring(index), out addIndex));
+
                     index += addIndex;
                 }
                 else
@@ -80,19 +107,16 @@ namespace Haceau.Application.Calculator
             List<decimal> stack = new List<decimal>();
             for (int index = 0; index < postfix.ToArray().Length; ++index)
             {
-                if (Tools.IsNumber(postfix[index][0]))
-                {
+                if (Tools.IsNumber(postfix[index].ToString()))
                     stack.Add(decimal.Parse(postfix[index]));
-                }
-                else if (stack.ToArray().Length - 1 < 1)
+                else if (stack.ToArray().Length < 2)
                 {
                     decimal num = Tools.Pop(ref stack);
+
                     if (postfix[index] == "+")
                         stack.Add(num);
-                    else if (postfix[index] == "-")
-                        stack.Add(-num);
                     else
-                        throw new Exception("未知的运算符。");
+                        stack.Add(-num);
                 }
                 else
                 {
@@ -107,11 +131,35 @@ namespace Haceau.Application.Calculator
                         stack.Add(num1 * num2);
                     else if (postfix[index] == "/")
                         stack.Add(num1 / num2);
+                    else if (postfix[index] == "%")
+                        stack.Add(num1 % num2);
                     else
                         throw new Exception("未知的运算符。");
                 }
             }
             return Tools.Pop(ref stack);
+        }
+
+        /// <summary>
+        /// 输入为表达式
+        /// </summary>
+        private void IsExpression()
+        {
+            if (Tools.IsOperator(expression[^1]))
+                throw new Exception("不能以运算符结尾。");
+            bool isOperator = false;
+            for (int i = 0; i < expression.Length; ++i)
+            {
+                if (Tools.IsOperator(expression[i]))
+                {
+                    if (isOperator)
+                        throw new Exception("运算符不能相邻。");
+                    else
+                        isOperator = true;
+                }
+                else
+                    isOperator = false;
+            }
         }
     }
 }
