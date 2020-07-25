@@ -1,13 +1,13 @@
 Haceau-Calculator
 =================
-![Language](https://img.shields.io/badge/Language-C%23-blue.svg?style=flat-square) ![.Net Core](https://img.shields.io/badge/.Net&nbsp;Core-4.7.2-blue.svg?style=flat-square)
+![Language](https://img.shields.io/badge/Language-C%23-blue.svg?style=flat-square) ![.Net Core](https://img.shields.io/badge/.Net&nbsp;Core-3.1-blue.svg?style=flat-square)
 
 [![Gitee](https://img.shields.io/badge/Gitee-辰落火辉Haceau-red.svg?style=flat-square)](https://gitee.com/haceau/Haceau-Calculator)
 [![Github](https://img.shields.io/badge/Github-HaceauZoac-blue.svg?style=flat-square)](https://github.com/Haceau-Zoac/Haceau-Calculator)
 
 简介
 ---
-该项目为使用C#编写的计算器。当前版本为v1.2.0。支持小括号、加减乘除、取余、正负数运算。开源协议为MIT。保持更新中。
+该项目为使用C#编写的计算器。当前版本为v1.3.0。支持小括号、加减乘除、去除小数的除、取余、幂运算、正负数运算。开源协议为MIT。保持更新中。
 
 类
 ---
