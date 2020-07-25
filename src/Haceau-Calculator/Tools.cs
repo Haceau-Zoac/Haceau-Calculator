@@ -53,28 +53,28 @@ namespace Haceau.Application.Calculator
             stack[stack.ToArray().Length - 1];
 
         /// <summary>
-        /// ch是+或-
+        /// str是+或-
         /// </summary>
-        /// <param name="ch">字符</param>
-        /// <returns>是与否</returns>
-        public static bool IsLowOperator(char ch) =>
-            ch == '+' || ch == '-';
+        /// <param name="str">字符串</param>
+        /// <returns>发生了变化的index长度</returns>
+        public static bool IsLowOperator(string str) =>
+            str[0] == '+' || str[0] == '-';
 
         /// <summary>
-        /// ch是乘或除或取余
+        /// str是*或^或**或/或//或%
         /// </summary>
-        /// <param name="ch">字符</param>
-        /// <returns>是与否</returns>
-        public static bool IsUpOperator(char ch) =>
-            ch == '*' || ch == '/' || ch == '%';
+        /// <param name="str">字符串</param>
+        /// <returns>发生了变化的index长度</returns>
+        public static int IsUpOperator(string str) =>
+            (str.Length > 1 && ((str[0] == '*' && str[1] == '*') || (str[0] == '*' && str[1] == '*'))) ? 1 : ((str[0] == '*' || str[0] == '/' || str[0] == '%' || str[0] == '^') ? 0 : -1);
 
         /// <summary>
-        /// ch是运算符
+        /// str是运算符
         /// </summary>
-        /// <param name="ch">字符</param>
-        /// <returns>是与否</returns>
-        public static bool IsOperator(char ch) =>
-            IsLowOperator(ch) || IsUpOperator(ch);
+        /// <param name="str">字符</param>
+        /// <returns>发生了变化的index长度</returns>
+        public static int IsOperator(string str) =>
+            IsUpOperator(str) == -1 ? (IsLowOperator(str) ? 0 : -1) : IsUpOperator(str);
 
         /// <summary>
         /// str是数字
@@ -83,6 +83,28 @@ namespace Haceau.Application.Calculator
         /// <returns>是与否</returns>
         public static bool IsNumber(string str) =>
             (str[0] >= '0' && str[0] <= '9') || (str.Length - 1 > 0 && (str[0] == '+' || str[0] == '-') && str[1] >= '0' && str[1] <= '9');
+
+
+        /// <summary>
+        /// 截取str中最开始的运算符，遇到非运算符字符结束。
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <param name="index">影响index数</param>
+        /// <returns>运算符</returns>
+        public static string GetOperator(string str, out int index)
+        {
+            string result = "";
+            index = -1;
+            char? oper = null;
+            while (str.Length > 0 && (IsUpOperator(str) != -1) && (oper == null || str[0] == oper))
+            {
+                result += str[0];
+                oper = str[0];
+                str = str.Remove(0, 1);
+                ++index;
+            }
+            return result;
+        }
 
         /// <summary>
         /// 截取str中最开始的数字，遇到非数字字符结束

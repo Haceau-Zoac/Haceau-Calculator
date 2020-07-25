@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -34,13 +35,13 @@ namespace Haceau.Application.Calculator
         /// </summary>
         private void GetPostfixExpression()
         {
-            List<char> stack = new List<char>();
+            List<string> stack = new List<string>();
             List<bool> isOperNum = new List<bool>();
             List<char> oper = new List<char>();
             for (int index = 0; index < expression.Length; ++index)
             {
                 if (expression[index] == '(')
-                    stack.Add('(');
+                    stack.Add("(");
                 else if (expression[index] == ')')
                 {
                     while (isOperNum.ToArray().Length != 0)
@@ -49,12 +50,12 @@ namespace Haceau.Application.Calculator
                         Tools.Pop(ref isOperNum);
                     }
 
-                    while (stack.ToArray().Length > 0 && Tools.Top(stack) != '(')
+                    while (stack.ToArray().Length > 0 && Tools.Top(stack) != "(")
                         postfix.Add(Tools.Pop(ref stack).ToString());
 
                     Tools.Pop(ref stack);
                 }
-                else if (Tools.IsLowOperator(expression[index]))
+                else if (Tools.IsLowOperator(expression.Substring(index)))
                 {
                     if (postfix.ToArray().Length == 0 || expression[index - 1] == '(')
                     {
@@ -63,16 +64,25 @@ namespace Haceau.Application.Calculator
                     }
                     else
                     {
-                        while (stack.ToArray().Length > 0 && Tools.IsOperator(Tools.Top(stack)))
+                        while (stack.ToArray().Length > 0 && Tools.IsOperator(Tools.Top(stack).ToString()) >= 0)
+                        {
+                            index += Tools.IsOperator(Tools.Top(stack).ToString());
                             postfix.Add(Tools.Pop(ref stack).ToString());
-                        stack.Add(expression[index]);
+                        }
+                        stack.Add(expression[index].ToString());
                     }
                 }
-                else if (Tools.IsUpOperator(expression[index]))
+                else if (Tools.IsUpOperator(expression.Substring(index)) >= 0)
                 {
-                    while (stack.ToArray().Length > 0 && Tools.IsUpOperator(Tools.Top(stack)))
+                    
+                    while (stack.ToArray().Length > 0 && Tools.IsUpOperator(Tools.Top(stack).ToString()) > 0)
+                    {
+                        index += Tools.IsUpOperator(Tools.Top(stack).ToString());
                         postfix.Add(Tools.Pop(ref stack).ToString());
-                    stack.Add(expression[index]);
+                    }
+                    stack.Add(Tools.GetOperator(expression.Substring(index), out int addIndex));
+                    index += addIndex;
+                    index += Tools.IsUpOperator(expression.Substring(index));
                 }
                 else if (Tools.IsNumber(expression[index].ToString()))
                 {
@@ -133,6 +143,10 @@ namespace Haceau.Application.Calculator
                         stack.Add(num1 / num2);
                     else if (postfix[index] == "%")
                         stack.Add(num1 % num2);
+                    else if (postfix[index] == "^" || postfix[index] == "**")
+                        stack.Add((decimal)Math.Pow((double)num1, (double)num2));
+                    else if (postfix[index] == "//")
+                        stack.Add((int)(num1 / num2));
                     else
                         throw new Exception("未知的运算符。");
                 }
@@ -145,14 +159,19 @@ namespace Haceau.Application.Calculator
         /// </summary>
         private void IsExpression()
         {
-            if (Tools.IsOperator(expression[^1]))
+            if (Tools.IsOperator(expression[^1].ToString()) != -1)
                 throw new Exception("不能以运算符结尾。");
+            if (Tools.IsUpOperator(expression[0].ToString()) != -1)
+                throw new Exception("不能以+-除外的运算符开头。");
             bool isOperator = false;
+            bool upIsOperator = false;
             for (int i = 0; i < expression.Length; ++i)
             {
-                if (Tools.IsOperator(expression[i]))
+                if (Tools.IsOperator(expression[i].ToString()) != -1)
                 {
-                    if (isOperator)
+                    if (isOperator && (expression[i] == '*' || expression[i] == '/') && !upIsOperator)
+                        upIsOperator = true;
+                    else if (isOperator)
                         throw new Exception("运算符不能相邻。");
                     else
                         isOperator = true;

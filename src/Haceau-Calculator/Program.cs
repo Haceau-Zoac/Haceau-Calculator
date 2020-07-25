@@ -8,7 +8,7 @@ namespace Haceau.Application.Calculator
         {
             while (true)
             {
-                Console.WriteLine("Haceau Calculator v1.2.0");
+                Console.WriteLine("Haceau Calculator v1.3.0");
                 Console.WriteLine("输入表达式进行计算，输入quit退出（不区分大小写）。");
                 Calculator calculator = new Calculator();
                 Tools.PromptInput("Expression");
