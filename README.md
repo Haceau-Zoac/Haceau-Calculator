@@ -28,7 +28,7 @@ Tools：工具类，一些与计算器无关的功能在这里实现。
 * 除：1 / 2 = 0.5
 * 取余：1 % 2 = 1
 * 除（去除小数）：1 // 2 = 0
-* 函数：\<函数名>(值)
+* 函数：函数名(值)
 * 函数列表：abs、acos、acosh、asin、atan、atanh、cbrt、ceiling、cos、cosh、exp、floor、ilogb、log、log10、log2、round、sign、sin、sinh、sqrt、tan、tanh、truncate
 
 待办清单
