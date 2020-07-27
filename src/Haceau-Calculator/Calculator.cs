@@ -95,6 +95,8 @@ namespace Haceau.Application.Calculator
                         postfix.Add(Tools.GetDouble(expression.Substring(index), out addIndex));
 
                     index += addIndex;
+                    if (index != expression.Length - 1 && Tools.IsOperator(expression[index + 1].ToString()) == -1 && expression[index + 1] != ')')
+                        throw new Exception("数字前后必须有运算符（除了第一个和最后一个）。");
                 }
                 else
                 {
@@ -204,7 +206,10 @@ namespace Haceau.Application.Calculator
                         isOperator = true;
                 }
                 else
+                {
                     isOperator = false;
+                    upIsOperator = false;
+                }
             }
         }
 
