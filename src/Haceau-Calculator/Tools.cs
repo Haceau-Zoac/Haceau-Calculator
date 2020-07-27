@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Haceau.Application.Calculator
 {
@@ -124,6 +124,32 @@ namespace Haceau.Application.Calculator
                 str = str.Remove(0, 1);
                 ++index;
             }
+            return result;
+        }
+
+        /// <summary>
+        /// 读取函数
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string GetFunction(string str, out int index, out double value)
+        {
+            int num = 0;
+            int start = str.IndexOf('(');
+            int end = str.IndexOf(')');
+            string sstr = str.Substring(start + 1, end - start - 1);
+            for (int i = 0; i < sstr.Length; ++i)
+                if (sstr[i] == '(')
+                    ++num;
+            while (num != 0)
+            {
+                end = str.IndexOf(')', end + 1);
+                --num;
+            }
+            sstr = str.Substring(start + 1, end - start - 1);
+            index = end;
+            string result = str.Substring(0, start);
+            value = new Calculator(){ expression = sstr }.Calculation();
             return result;
         }
     }

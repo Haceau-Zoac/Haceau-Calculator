@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 
 namespace Haceau.Application.Calculator
 {
@@ -22,7 +18,7 @@ namespace Haceau.Application.Calculator
         /// 计算
         /// </summary>
         /// <returns>计算结果</returns>
-        public decimal Calculation()
+        public dynamic Calculation()
         {
             IsExpression();
             GetPostfixExpression();
@@ -74,7 +70,7 @@ namespace Haceau.Application.Calculator
                 }
                 else if (Tools.IsUpOperator(expression.Substring(index)) >= 0)
                 {
-                    
+
                     while (stack.ToArray().Length > 0 && Tools.IsUpOperator(Tools.Top(stack).ToString()) > 0)
                     {
                         index += Tools.IsUpOperator(Tools.Top(stack).ToString());
@@ -101,7 +97,37 @@ namespace Haceau.Application.Calculator
                     index += addIndex;
                 }
                 else
-                    throw new Exception("未知的字符。");
+                {
+                    if (expression.Substring(index, 2) == "pi")
+                    {
+                        if (isOperNum.ToArray().Length - 1 >= 0)
+                        {
+                            Tools.Pop(ref isOperNum);
+                            if (Tools.Pop(ref oper) == '+')
+                                postfix.Add('+' + Math.PI.ToString());
+                            else
+                                postfix.Add('-' + Math.PI.ToString());
+                            ++index;
+                        }
+                        else
+                            postfix.Add(Math.PI.ToString());
+                        ++index;
+                        continue;
+                    }
+                    string funcName = Tools.GetFunction(expression.Substring(index), out int ind, out double val);
+                    index += ind;
+
+                    if (isOperNum.ToArray().Length - 1 >= 0)
+                    {
+                        Tools.Pop(ref isOperNum);
+                        if (Tools.Pop(ref oper) == '+')
+                            postfix.Add('+' + ReadFunction(funcName, val));
+                        else
+                            postfix.Add('-' + ReadFunction(funcName, val));
+                        ++index;
+                    }
+                    postfix.Add(ReadFunction(funcName, val));
+                }
             }
             while (stack.ToArray().Length != 0)
                 postfix.Add(Tools.Pop(ref stack).ToString());
@@ -112,16 +138,16 @@ namespace Haceau.Application.Calculator
         /// 计算后缀表达式
         /// </summary>
         /// <returns>得数</returns>
-        private decimal CalculationPostfixExpression()
+        private dynamic CalculationPostfixExpression()
         {
-            List<decimal> stack = new List<decimal>();
+            List<dynamic> stack = new List<dynamic>();
             for (int index = 0; index < postfix.ToArray().Length; ++index)
             {
                 if (Tools.IsNumber(postfix[index].ToString()))
-                    stack.Add(decimal.Parse(postfix[index]));
+                    stack.Add((dynamic)double.Parse(postfix[index]));
                 else if (stack.ToArray().Length < 2)
                 {
-                    decimal num = Tools.Pop(ref stack);
+                    dynamic num = Tools.Pop(ref stack);
 
                     if (postfix[index] == "+")
                         stack.Add(num);
@@ -130,8 +156,8 @@ namespace Haceau.Application.Calculator
                 }
                 else
                 {
-                    decimal num2 = Tools.Pop(ref stack);
-                    decimal num1 = Tools.Pop(ref stack);
+                    dynamic num2 = Tools.Pop(ref stack);
+                    dynamic num1 = Tools.Pop(ref stack);
 
                     if (postfix[index] == "+")
                         stack.Add(num1 + num2);
@@ -144,7 +170,7 @@ namespace Haceau.Application.Calculator
                     else if (postfix[index] == "%")
                         stack.Add(num1 % num2);
                     else if (postfix[index] == "^" || postfix[index] == "**")
-                        stack.Add((decimal)Math.Pow((double)num1, (double)num2));
+                        stack.Add((dynamic)Math.Pow((double)num1, (double)num2));
                     else if (postfix[index] == "//")
                         stack.Add((int)(num1 / num2));
                     else
@@ -165,6 +191,7 @@ namespace Haceau.Application.Calculator
                 throw new Exception("不能以+-除外的运算符开头。");
             bool isOperator = false;
             bool upIsOperator = false;
+            List<string> stack = new List<string>();
             for (int i = 0; i < expression.Length; ++i)
             {
                 if (Tools.IsOperator(expression[i].ToString()) != -1)
@@ -178,6 +205,90 @@ namespace Haceau.Application.Calculator
                 }
                 else
                     isOperator = false;
+            }
+        }
+
+        private string ReadFunction(string funcName, double value)
+        {
+            switch (funcName)
+            {
+                case "abs":
+                    return Math.Abs(value).ToString();
+                    
+                case "acos":
+                    return Math.Acos(value).ToString();
+                    
+                case "acosh":
+                    return Math.Acosh(value).ToString();
+                    
+                case "asin":
+                    return Math.Asin(value).ToString();
+                    
+                case "asinh":
+                    return Math.Asinh(value).ToString();
+                    
+                case "atan":
+                    return Math.Atan(value).ToString();
+                    
+                case "atanh":
+                    return Math.Atanh(value).ToString();
+                    
+                case "cbrt":
+                    return Math.Cbrt(value).ToString();
+
+                case "ceiling":
+                    return Math.Ceiling(value).ToString();
+                    
+                case "cos":
+                    return Math.Cos(value).ToString();
+                    
+                case "cosh":
+                    return Math.Cosh(value).ToString();
+                    
+                case "exp":
+                    return Math.Exp(value).ToString();
+                    
+                case "floor":
+                    return Math.Floor(value).ToString();
+                    
+                case "ilogb":
+                    return Math.ILogB(value).ToString();
+                    
+                case "log":
+                    return Math.Log(value).ToString();
+                    
+                case "log10":
+                    return Math.Log10(value).ToString();
+                    
+                case "log2":
+                    return Math.Log2(value).ToString();
+                    
+                case "round":
+                    return Math.Round(value).ToString();
+                    
+                case "sign":
+                    return Math.Sign(value).ToString();
+                    
+                case "sin":
+                    return Math.Sin(value).ToString();
+                    
+                case "sinh":
+                    return Math.Sinh(value).ToString();
+                    
+                case "sqrt":
+                    return Math.Sqrt(value).ToString();
+                    
+                case "tan":
+                    return Math.Tan(value).ToString();
+                    
+                case "tanh":
+                    return Math.Tanh(value).ToString();
+                    
+                case "truncate":
+                    return Math.Truncate(value).ToString();
+                    
+                default:
+                    throw new Exception("未知的字符。");
             }
         }
     }
